@@ -2,8 +2,12 @@
 
 import mongoose from "mongoose";
 import { countConnect } from "../helpers/check.connect.ts";
+import config from "../configs/config.mongodb.ts";
 
-const connectString = `mongodb://localhost:27017/shopDev`;
+const {
+  db: { host, name, port },
+} = config;
+const connectString = `mongodb://${host}:${port}/${name}`;
 
 class Database {
   private static instance: Database;
