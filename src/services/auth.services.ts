@@ -1,6 +1,6 @@
 "use strict";
 
-import shopModels from "../models/shop.models.ts";
+import shopModels from "../models/shop.model.ts";
 import bcrypt from "bcrypt";
 import crypto from "crypto";
 import keyTokenServices from "./keyToken.services.ts";

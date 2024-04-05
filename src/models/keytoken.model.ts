@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import shopModels from "./shop.models.ts";
+import shopModels from "./shop.model.ts";
 
 const DOCUMENT_NAME = "Key";
 const COLLECTION_NAME = "Keys";

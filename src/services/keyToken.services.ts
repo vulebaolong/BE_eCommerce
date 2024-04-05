@@ -1,6 +1,6 @@
 "use strict";
 import crypto from "crypto";
-import keytokenModels from "../models/keytoken.models.ts";
+import keytokenModels from "../models/keytoken.model.ts";
 import { Types } from "mongoose";
 
 type TCreateTokenServices = {

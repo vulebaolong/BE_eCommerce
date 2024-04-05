@@ -5,9 +5,10 @@
 
 POST {{url_dev}}shop/register
 Content-Type: application/json
+x-api-key: a639ca5180c81749717087bc48c75d3cb67b77189d53222b3853574f524dc05044c7a2ae202b1aafe6441ba3b2f09c8213fd437f28070c819f5b1d0603ac8706
 
 {
     "name": "shop_baolong",
-    "email": "vulebaolong@gmail.com",
+    "email": "vulebaolong4@gmail.com",
     "password": "123123"
 }
