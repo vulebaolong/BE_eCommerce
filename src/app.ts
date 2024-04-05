@@ -3,6 +3,8 @@ import express from "express";
 import helmet from "helmet";
 import morgan from "morgan";
 import rootRouter from "./routes/rootRouter.ts";
+import "./dbs/init.mongodb.ts";
+import { endError, handleError } from "./helpers/handleError.helper.ts";
 
 const app = express();
 
@@ -13,14 +15,14 @@ app.use(compression());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// init db
-import "./dbs/init.mongodb.ts";
 // import { checkOverload } from "./helpers/check.connect.ts";
 // checkOverload();
 
 // init route
 app.use(rootRouter);
 
-// init error
+// handle error
+app.use(handleError)
+app.use(endError)
 
 export default app;
