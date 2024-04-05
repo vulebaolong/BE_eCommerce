@@ -1,3 +1,5 @@
+'use strict'
+
 import mongoose from "mongoose";
 
 const connectString = `mongodb://localhost:27017/shopDev`;

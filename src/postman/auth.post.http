@@ -1,0 +1,13 @@
+@url_dev=http://localhost:3069/v1/api/
+
+
+### register
+
+POST {{url_dev}}shop/register
+Content-Type: application/json
+
+{
+    "name": "shop_baolong",
+    "email": "vulebaolong@gmail.com",
+    "password": "123123"
+}
