@@ -2,9 +2,8 @@ import compression from "compression";
 import express from "express";
 import helmet from "helmet";
 import morgan from "morgan";
+import { handleNotFoundEndpoint, handlError } from "./helpers/handleError.helper.ts";
 import rootRouter from "./routes/rootRouter.ts";
-import "./dbs/init.mongodb.ts";
-import { endError, handleError } from "./helpers/handleError.helper.ts";
 
 const app = express();
 
@@ -22,7 +21,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(rootRouter);
 
 // handle error
-app.use(handleError)
-app.use(endError)
+app.use(handleNotFoundEndpoint);
+app.use(handlError);
 
 export default app;

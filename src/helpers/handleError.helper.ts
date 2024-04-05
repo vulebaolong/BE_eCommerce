@@ -8,12 +8,13 @@ class MyError extends Error {
    }
 }
 
-export const handleError = (req: Request, res: Response, next: NextFunction) => {
-   const error = new MyError(`Not Found`, 404);
+export const handleNotFoundEndpoint = (req: Request, res: Response, next: NextFunction) => {
+   console.log(req.url);
+   const error = new MyError(`Not Found: ${req.url}`, 404);
    next(error);
 };
 
-export const endError = (error: MyError, req: Request, res: Response, next: NextFunction) => {
+export const handlError = (error: MyError, req: Request, res: Response, next: NextFunction) => {
    const statusCode = error.status || 500;
    return res.status(statusCode).json({
       status: `error`,
