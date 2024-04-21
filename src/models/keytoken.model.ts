@@ -6,29 +6,33 @@ const COLLECTION_NAME = "Keys";
 
 // Declare the Schema of the Mongo model
 const keyTokenSchema = new mongoose.Schema(
-  {
-    user: {
-      type: mongoose.Schema.Types.ObjectId,
-      required: true,
-      ref: shopModels.name,
-    },
-    privateKey: {
-      type: String,
-      required: true,
-    },
-    publicKey: {
-      type: String,
-      required: true,
-    },
-    refreshToken: {
-      type: Array,
-      default: [],
-    },
-  },
-  {
-    timestamps: true,
-    collection: COLLECTION_NAME,
-  }
+   {
+      user: {
+         type: mongoose.Schema.Types.ObjectId,
+         required: true,
+         ref: shopModels.name,
+      },
+      privateKey: {
+         type: String,
+         required: true,
+      },
+      publicKey: {
+         type: String,
+         required: true,
+      },
+      refreshTokensUsed: {
+         type: Array,
+         default: [],
+      },
+      refreshToken: {
+         type: String,
+         required: true,
+      },
+   },
+   {
+      timestamps: true,
+      collection: COLLECTION_NAME,
+   }
 );
 
 //Export the model

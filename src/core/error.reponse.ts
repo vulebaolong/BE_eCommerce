@@ -1,12 +1,5 @@
-const STATUS_CODE = {
-   FORBIDDEN: 403,
-   CONFLIT: 409,
-};
-
-const RESPONSE_STATUS_CODE = {
-   FORBIDDEN: `Bad Request Error`,
-   CONFLICT: `Conflict error`,
-};
+import { reasonPhrases } from "../helpers/reasonPhrases.helper.ts";
+import { statusCodes } from "../helpers/statusCodes.helper.ts";
 
 class ErrorResponse extends Error {
    status: number;
@@ -18,8 +11,8 @@ class ErrorResponse extends Error {
 
 export class ConflicRequestError extends ErrorResponse {
    constructor(
-      message: string = RESPONSE_STATUS_CODE.CONFLICT,
-      statusCode: number = STATUS_CODE.FORBIDDEN
+      message: string = reasonPhrases.CONFLICT,
+      statusCode: number = statusCodes.CONFLICT
    ) {
       super(message, statusCode);
    }
@@ -27,8 +20,35 @@ export class ConflicRequestError extends ErrorResponse {
 
 export class BadRequestError extends ErrorResponse {
    constructor(
-      message: string = RESPONSE_STATUS_CODE.CONFLICT,
-      statusCode: number = STATUS_CODE.FORBIDDEN
+      message: string = reasonPhrases.BAD_REQUEST,
+      statusCode: number = statusCodes.BAD_REQUEST
+   ) {
+      super(message, statusCode);
+   }
+}
+
+export class AuthFailureError extends ErrorResponse {
+   constructor(
+      message: string = reasonPhrases.UNAUTHORIZED,
+      statusCode: number = statusCodes.UNAUTHORIZED
+   ) {
+      super(message, statusCode);
+   }
+}
+
+export class InternalServerError extends ErrorResponse {
+   constructor(
+      message: string = reasonPhrases.INTERNAL_SERVER_ERROR,
+      statusCode: number = statusCodes.INTERNAL_SERVER_ERROR
+   ) {
+      super(message, statusCode);
+   }
+}
+
+export class NotFoundError extends ErrorResponse {
+   constructor(
+      message: string = reasonPhrases.NOT_FOUND,
+      statusCode: number = statusCodes.NOT_FOUND
    ) {
       super(message, statusCode);
    }

@@ -19,7 +19,7 @@ type TSuccessResponse = {
    metaData?: any;
 };
 
-class SuccessResponse {
+export class SuccessResponse {
    message: string;
    status: number;
    reasonStatusCode: string;

@@ -1,12 +1,13 @@
 "use strict";
 
-import shopModels from "../models/shop.model.ts";
 import bcrypt from "bcrypt";
 import crypto from "crypto";
-import keyTokenServices from "./keyToken.services.ts";
-import { createTokenPair } from "../helpers/auth.helper.ts";
+import { AuthFailureError, ConflicRequestError, InternalServerError, NotFoundError } from "../core/error.reponse.ts";
 import { getInfoData } from "../helpers/app.helper.ts";
-import { BadRequestError } from "../core/error.reponse.ts";
+import { createTokenPair } from "../helpers/auth.helper.ts";
+import shopModels from "../models/shop.model.ts";
+import keyTokenServices from "./keyToken.services.ts";
+import shopServices from "./shop.services.ts";
 
 const ROLE_SHOP = {
    SHOP: `SHOP`,
@@ -22,13 +23,18 @@ type TRegisterServies = {
    roles: string[];
    abc: any;
 };
+type TLoginServies = {
+   email: string;
+   password: string;
+   refreshToken: string | null;
+};
 
 class AuthServices {
    async register({ name, email, password, roles }: TRegisterServies) {
       try {
          // step 1: check email exits
          const exitsShop = await shopModels.findOne({ email }).lean();
-         if (exitsShop) throw new BadRequestError(`Error Shop Already Register`);
+         if (exitsShop) throw new ConflicRequestError(`Error Shop Already Register`);
 
          const passwordHash = await bcrypt.hash(password, 1);
          const newShop = await shopModels.create({
@@ -37,7 +43,7 @@ class AuthServices {
             password: passwordHash,
             roles: [ROLE_SHOP.SHOP],
          });
-         if (!newShop) throw new BadRequestError(`Create shop error`);
+         if (!newShop) throw new InternalServerError(`Create shop error`);
 
          // created privateKey, publicKey
          // const { publicKey, privateKey } = crypto.generateKeyPairSync("rsa", {
@@ -53,14 +59,6 @@ class AuthServices {
          // });
          const publicKey = crypto.randomBytes(64).toString(`hex`);
          const privateKey = crypto.randomBytes(64).toString(`hex`);
-
-         const keyStore = await keyTokenServices.createKeyToken({
-            userId: newShop._id,
-            publicKey,
-            privateKey,
-         });
-         if (!keyStore) throw new BadRequestError(`keyStore error`);
-
          const tokens = createTokenPair(
             {
                userId: newShop._id,
@@ -69,6 +67,15 @@ class AuthServices {
             publicKey,
             privateKey
          );
+         if (!tokens) throw new InternalServerError(`Create token error`);
+
+         const keyStore = await keyTokenServices.createKeyToken({
+            refreshToken: tokens.refreshToken,
+            userId: newShop._id,
+            publicKey,
+            privateKey,
+         });
+         if (!keyStore) throw new InternalServerError(`keyStore error`);       
 
          console.log(tokens);
 
@@ -82,6 +89,53 @@ class AuthServices {
       } catch (error) {
          throw error;
       }
+   }
+
+   /**
+    * 1 - check email in dbs
+    * 2 - match password
+    * 3 - create AT and RF and save
+    * 4 - generate tokens
+    * 5 - get data return login
+    */
+   async login({ email, password, refreshToken = null }: TLoginServies) {
+      // 1
+      const exitsShop = await shopServices.findByEmail({ email });
+      if (!exitsShop) throw new NotFoundError(`Shop not registered`);
+
+      // 2
+      const match = bcrypt.compareSync(password, exitsShop.password)
+      if (!match) throw new AuthFailureError(`Email or password is incorrect`);
+
+      const  userId = exitsShop._id
+      // 3
+      const publicKey = crypto.randomBytes(64).toString(`hex`);
+      const privateKey = crypto.randomBytes(64).toString(`hex`);
+      const tokens = createTokenPair(
+         {
+            userId,
+            email: exitsShop.email,
+         },
+         publicKey,
+         privateKey
+      );
+      if (!tokens) throw new InternalServerError(`Create token error`);
+
+      const keyStore = await keyTokenServices.createKeyToken({
+         refreshToken: tokens.refreshToken,
+         userId,
+         publicKey,
+         privateKey,
+      });
+      if (!keyStore) throw new InternalServerError(`keyStore error`);       
+
+      return {
+         shop: getInfoData({
+            fileds: [`_id`, `name`, `email`],
+            object: exitsShop,
+         }),
+         tokens,
+      };
    }
 }
 
