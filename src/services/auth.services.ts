@@ -27,10 +27,9 @@ class AuthServices {
    async register({ name, email, password, roles }: TRegisterServies) {
       try {
          // step 1: check email exits
-         const hodeShop = await shopModels.findOne({ email }).lean();
-         if (hodeShop) {
-            throw new BadRequestError(`Error Shop Already Register`);
-         }
+         const exitsShop = await shopModels.findOne({ email }).lean();
+         if (exitsShop) throw new BadRequestError(`Error Shop Already Register`);
+
          const passwordHash = await bcrypt.hash(password, 1);
          const newShop = await shopModels.create({
             email,
@@ -38,14 +37,7 @@ class AuthServices {
             password: passwordHash,
             roles: [ROLE_SHOP.SHOP],
          });
-         if (!newShop) {
-            return {
-               code: `xxx`,
-               message: `error`,
-               status: `error`,
-               data: null,
-            };
-         }
+         if (!newShop) throw new BadRequestError(`Create shop error`);
 
          // created privateKey, publicKey
          // const { publicKey, privateKey } = crypto.generateKeyPairSync("rsa", {
@@ -67,14 +59,7 @@ class AuthServices {
             publicKey,
             privateKey,
          });
-         if (!keyStore) {
-            return {
-               code: `xxx`,
-               message: `keyStore error`,
-               status: `error`,
-               data: null,
-            };
-         }
+         if (!keyStore) throw new BadRequestError(`keyStore error`);
 
          const tokens = createTokenPair(
             {
@@ -88,16 +73,11 @@ class AuthServices {
          console.log(tokens);
 
          return {
-            code: `xxx`,
-            message: ``,
-            status: `success`,
-            data: {
-               shop: getInfoData({
-                  fileds: [`_id`, `name`, `email`],
-                  object: newShop,
-               }),
-               tokens,
-            },
+            shop: getInfoData({
+               fileds: [`_id`, `name`, `email`],
+               object: newShop,
+            }),
+            tokens,
          };
       } catch (error) {
          throw error;
