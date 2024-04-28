@@ -41,7 +41,7 @@ class KeyTokenServies {
             upsert: true,
             new: true,
          };
-         
+
          const tokens = await keytokenModels.findOneAndUpdate(filter, update, options);
 
          return tokens ? tokens.publicKey : false;
@@ -49,6 +49,15 @@ class KeyTokenServies {
          console.log(error);
          return false;
       }
+   }
+
+   async findByUserId(userId: string) {
+      return await keytokenModels.findOne({ user: new Types.ObjectId(userId) }).lean();
+   }
+
+   async removeKeyById (id: Types.ObjectId) {
+      return await keytokenModels.deleteMany(id).lean();
+
    }
 }
 

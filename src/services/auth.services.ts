@@ -2,12 +2,18 @@
 
 import bcrypt from "bcrypt";
 import crypto from "crypto";
-import { AuthFailureError, ConflicRequestError, InternalServerError, NotFoundError } from "../core/error.reponse.ts";
+import {
+   AuthFailureError,
+   ConflicRequestError,
+   InternalServerError,
+   NotFoundError,
+} from "../core/error.reponse.ts";
 import { getInfoData } from "../helpers/app.helper.ts";
-import { createTokenPair } from "../helpers/auth.helper.ts";
+import { createTokenPair, TKeyStore } from "../helpers/auth.helper.ts";
 import shopModels from "../models/shop.model.ts";
 import keyTokenServices from "./keyToken.services.ts";
 import shopServices from "./shop.services.ts";
+import { Types } from "mongoose";
 
 const ROLE_SHOP = {
    SHOP: `SHOP`,
@@ -27,6 +33,9 @@ type TLoginServies = {
    email: string;
    password: string;
    refreshToken: string | null;
+};
+type TLogoutServies = {
+   keyStore: Types.ObjectId;
 };
 
 class AuthServices {
@@ -75,7 +84,7 @@ class AuthServices {
             publicKey,
             privateKey,
          });
-         if (!keyStore) throw new InternalServerError(`keyStore error`);       
+         if (!keyStore) throw new InternalServerError(`keyStore error`);
 
          console.log(tokens);
 
@@ -104,10 +113,10 @@ class AuthServices {
       if (!exitsShop) throw new NotFoundError(`Shop not registered`);
 
       // 2
-      const match = bcrypt.compareSync(password, exitsShop.password)
+      const match = bcrypt.compareSync(password, exitsShop.password);
       if (!match) throw new AuthFailureError(`Email or password is incorrect`);
 
-      const  userId = exitsShop._id
+      const userId = exitsShop._id;
       // 3
       const publicKey = crypto.randomBytes(64).toString(`hex`);
       const privateKey = crypto.randomBytes(64).toString(`hex`);
@@ -127,7 +136,7 @@ class AuthServices {
          publicKey,
          privateKey,
       });
-      if (!keyStore) throw new InternalServerError(`keyStore error`);       
+      if (!keyStore) throw new InternalServerError(`keyStore error`);
 
       return {
          shop: getInfoData({
@@ -136,6 +145,10 @@ class AuthServices {
          }),
          tokens,
       };
+   }
+
+   async logout(keyStore: TKeyStore) {
+      return await keyTokenServices.removeKeyById(keyStore._id);
    }
 }
 
